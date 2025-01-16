@@ -13,8 +13,16 @@ import androidx.core.content.ContextCompat
 import android.util.Log
 import android.content.pm.ServiceInfo
 import android.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+
+import java.net.HttpURLConnection
+import java.net.URL
 
 class ForegroundModule : Module() {
     // Each module class must implement the definition function. The definition consists of components
@@ -27,15 +35,15 @@ class ForegroundModule : Module() {
         Name("Foreground")
 
 
-        Function("startForegroundService") { message: String ->
+        Function("startForegroundService") { endpoint: String ->
             val context = appContext.reactContext
             if (context != null) {
-                Log.d("RideStatusForeground", "Starting foreground service with message: $message")
+                Log.d("RideStatusForeground", "Starting foreground service with endpoint: $endpoint")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    ForegroundService.startService(context, message)
+                    ForegroundService.startService(context, endpoint)
                 } else {
                     val serviceIntent = Intent(context, ForegroundService::class.java)
-                    serviceIntent.putExtra("inputExtra", message)  // Pass the message via intent
+                    serviceIntent.putExtra("endpoint", endpoint)  // Pass the message via intent
                     context.startService(serviceIntent)
                 }
             } else {
@@ -56,28 +64,99 @@ class ForegroundModule : Module() {
     }
 }
 
+
 class ForegroundService : Service() {
 
-    override fun onBind(p0: Intent?): IBinder? {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private var updateJob: Job? = null
+
+    override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val input = intent?.getStringExtra("inputExtra")
+        val endpoint = intent?.getStringExtra("endpoint")
+
+        if (endpoint == null) {
+            Log.e("ForegroundService", "No endpoint provided for updates.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         createNotificationChannel()
+
         val notification = NotificationCompat.Builder(this, "ChannelId")
             .setContentTitle("Your ride is on its way!")
-            .setContentText("Estimated time: 3 minutes")
-            .setProgress(100, 50, false) // Progress bar (max: 100, current progress: 50)
+            .setContentText("Initializing...")
+            .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Use a standard Android drawable
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .build()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             startForeground(1, notification)
         }
+
+        // Start fetching updates from the endpoint
+        startFetchingUpdates(endpoint)
+
         return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        updateJob?.cancel() // Stop the update job if the service is destroyed
+    }
+
+    private fun startFetchingUpdates(endpoint: String) {
+        updateJob = coroutineScope.launch {
+            while (true) {
+                try {
+                    val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
+
+                    // Update the notification with new progress and estimate
+                    val updatedNotification = NotificationCompat.Builder(this@ForegroundService, "ChannelId")
+                        .setContentTitle("Your driver is on the way!")
+                        .setContentText("Estimated time: $estimate minutes")
+                        .setProgress(100, progress, false)
+                        .setOngoing(true)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .build()
+
+                    val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    notificationManager.notify(1, updatedNotification)
+                } catch (e: Exception) {
+                    Log.e("ForegroundService", "Error fetching updates: ${e.message}", e)
+                }
+
+                delay(5000) // Fetch updates every 5 seconds
+            }
+        }
+    }
+
+    private fun fetchUpdateFromEndpoint(endpoint: String): Pair<Int, Int> {
+        val urlConnection = URL(endpoint).openConnection() as HttpURLConnection
+        return try {
+            urlConnection.requestMethod = "GET"
+
+            if (urlConnection.responseCode == 200) {
+                val response = urlConnection.inputStream.bufferedReader().use { it.readText() }
+
+                // Assume the response is in JSON format: { "progress": 50, "estimate": 3 }
+                val json = org.json.JSONObject(response)
+                val progress = json.getInt("progress")
+                val estimate = json.getInt("estimate")
+
+                progress to estimate
+            } else {
+                Log.e("ForegroundService", "Failed to fetch updates: HTTP ${urlConnection.responseCode}")
+                0 to 0 // Default values on failure
+            }
+        } finally {
+            urlConnection.disconnect()
+        }
     }
 
     private fun createNotificationChannel() {
@@ -92,9 +171,9 @@ class ForegroundService : Service() {
     }
 
     companion object {
-        fun startService(context: Context, message: String) {
+        fun startService(context: Context, endpoint: String) {
             val startIntent = Intent(context, ForegroundService::class.java)
-            startIntent.putExtra("inputExtra", message)
+            startIntent.putExtra("endpoint", endpoint)
             ContextCompat.startForegroundService(context, startIntent)
         }
 
