@@ -122,6 +122,7 @@ class ForegroundService : Service() {
                         .setContentText("Estimated time: $estimate minutes")
                         .setProgress(100, progress, false)
                         .setOngoing(true)
+                        .setSilent(true)
                         .setSmallIcon(android.R.drawable.ic_dialog_info)
                         .build()
 
