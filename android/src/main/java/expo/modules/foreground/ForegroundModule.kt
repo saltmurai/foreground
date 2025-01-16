@@ -126,13 +126,15 @@ class ForegroundService : Service() {
                         .setSmallIcon(android.R.drawable.ic_dialog_info)
                         .build()
 
+                    val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    
                     if (progress == 100) {
                         Log.d("ForegroundService", "Progress reached 100, stopping foreground service.")
-                        stopForegroundService() // Call the method defined in the module
+                        stopSelf() // Call the method defined in the module
+                        notificationManager.cancel(1)
                         break
                     }
                     
-                    val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                     notificationManager.notify(1, updatedNotification)
                 } catch (e: Exception) {
                     Log.e("ForegroundService", "Error fetching updates: ${e.message}", e)
