@@ -66,6 +66,13 @@ module.exports = withForegroundService;
 
 ```
 
+add config to `app.json`
+
+```
+"plugins": [..., "./withForegroundService.js"],
+
+```
+
 # Useage
 
 ```
