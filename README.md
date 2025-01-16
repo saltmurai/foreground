@@ -1,35 +1,141 @@
-# foreground
+# foreground-ss
 
-My new module
-
-# API documentation
-
-- [Documentation for the latest stable release](https://docs.expo.dev/versions/latest/sdk/foreground/)
-- [Documentation for the main branch](https://docs.expo.dev/versions/unversioned/sdk/foreground/)
-
-# Installation in managed Expo projects
-
-For [managed](https://docs.expo.dev/archive/managed-vs-bare/) Expo projects, please follow the installation instructions in the [API documentation for the latest stable release](#api-documentation). If you follow the link and there is no documentation available then this library is not yet usable within managed projects &mdash; it is likely to be included in an upcoming Expo SDK release.
-
-# Installation in bare React Native projects
-
-For bare React Native projects, you must ensure that you have [installed and configured the `expo` package](https://docs.expo.dev/bare/installing-expo-modules/) before continuing.
-
-### Add the package to your npm dependencies
+# Install guide
 
 ```
-npm install foreground
+npx expo install foreground-ss
 ```
 
-### Configure for Android
+add this script to the root of the expo project name `withForegroundService.js`
 
+```
+const { withAndroidManifest } = require('@expo/config-plugins');
 
+const withForegroundService = (config) => {
+  return withAndroidManifest(config, (config) => {
+    const permissions = [
+        'android.permission.POST_NOTIFICATIONS',
+        'android.permission.FOREGROUND_SERVICE',
+        'android.permission.FOREGROUND_SERVICE_DATA_SYNC',
+      ];
 
+      if (!config.modResults.manifest['uses-permission']) {
+        config.modResults.manifest['uses-permission'] = [];
+      }
 
-### Configure for iOS
+      permissions.forEach((permission) => {
+        const alreadyExists = config.modResults.manifest['uses-permission'].some(
+          (item) => item.$['android:name'] === permission
+        );
 
-Run `npx pod-install` after installing the npm package.
+        if (!alreadyExists) {
+          config.modResults.manifest['uses-permission'].push({
+            $: { 'android:name': permission },
+          });
+        }
+      });
 
-# Contributing
+    const service = {
+      $: {
+        'android:name': 'expo.modules.foreground.ForegroundService',
+        'android:enabled': 'true',
+        'android:exported': 'true',
+        'android:foregroundServiceType': 'dataSync',
+      },
+    };
 
-Contributions are very welcome! Please refer to guidelines described in the [contributing guide]( https://github.com/expo/expo#contributing).
+    // Ensure the <application> tag exists and add the service
+    if (!config.modResults.manifest.application[0].service) {
+      config.modResults.manifest.application[0].service = [];
+    }
+
+    const hasService = config.modResults.manifest.application[0].service.some(
+      (existingService) =>
+        existingService.$['android:name'] === 'expo.modules.foreground.ForegroundService'
+    );
+
+    if (!hasService) {
+      config.modResults.manifest.application[0].service.push(service);
+    }
+
+    return config;
+  });
+};
+
+module.exports = withForegroundService;
+
+```
+
+# Useage
+
+```
+npm run android
+```
+
+In code to start a foreground service the app need
+
+- Allow Post Notification permission
+- Allow FOREGROUND permission
+- Allow FOREGROUND_DATA_SYNC permisiion
+
+Example useage
+
+```js
+import * as ForegroundModule from "foreground-ss";
+
+const requestNotificationPermission = async () => {
+  if (Platform.OS === "android") {
+    try {
+      PermissionsAndroid.check("android.permission.POST_NOTIFICATIONS")
+        .then((response) => {
+          if (!response) {
+            PermissionsAndroid.request(
+              "android.permission.POST_NOTIFICATIONS",
+              {
+                title: "Notification",
+                message:
+                  "App needs access to your notification " +
+                  "so you can get Updates",
+                buttonNeutral: "Ask Me Later",
+                buttonNegative: "Cancel",
+                buttonPositive: "OK",
+              }
+            );
+          }
+        })
+        .catch((err) => {
+          console.log("Notification Error=====>", err);
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
+export default function Home() {
+  // request for foreground service permission
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
+  const handlePress = () => {
+    ForegroundModule.default.startForegroundService(
+      // API end point return the data
+      "https://dc70-101-99-23-76.ngrok-free.app/data"
+    );
+  };
+  const handleStop = () => {
+    ForegroundModule.default.stopForegroundService();
+  };
+  return (
+    <>
+      <Stack.Screen options={{ title: "Home" }} />
+      <Container>
+        <ScreenContent path="app/index.tsx" title="Home" />
+        <Button title="Show Details" onPress={handlePress} />
+        <Button title="Stop Service" onPress={handleStop} />
+      </Container>
+    </>
+  );
+}
+```
