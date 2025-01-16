@@ -6,8 +6,8 @@ declare class ForegroundModule extends NativeModule<ForegroundModuleEvents> {
   PI: number;
   hello(): string;
   setValueAsync(value: string): Promise<void>;
-  startForegroundService(): Promise<void>;
-  stopForegroundService(): (message: string) => Promise<void>;
+  startForegroundService: (message: string) => Promise<void>;
+  stopForegroundService: () => Promise<void>;
 }
 
 // This call loads the native module object from the JSI.
