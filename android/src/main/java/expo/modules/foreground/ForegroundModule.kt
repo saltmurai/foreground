@@ -17,23 +17,25 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 class ForegroundModule : Module() {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
-  override fun definition() = ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('Foreground')` in JavaScript.
-    Name("Foreground")
+    // Each module class must implement the definition function. The definition consists of components
+    // that describes the module's functionality and behavior.
+    // See https://docs.expo.dev/modules/module-api for more details about available components.
+    override fun definition() = ModuleDefinition {
+        // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
+        // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
+        // The module will be accessible from `requireNativeModule('Foreground')` in JavaScript.
+        Name("Foreground")
 
-            Function("startForegroundService") {
+
+        Function("startForegroundService") { message: String ->
             val context = appContext.reactContext
             if (context != null) {
-                Log.d("RideStatusForeground", "Starting foreground service...")
+                Log.d("RideStatusForeground", "Starting foreground service with message: $message")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    ForegroundService.startService(context, "Service is running in the foreground")
+                    ForegroundService.startService(context, message)
                 } else {
                     val serviceIntent = Intent(context, ForegroundService::class.java)
+                    serviceIntent.putExtra("inputExtra", message)  // Pass the message via intent
                     context.startService(serviceIntent)
                 }
             } else {
@@ -50,8 +52,8 @@ class ForegroundModule : Module() {
                 Log.e("RideStatusForeground", "Context is null, cannot stop service.")
             }
         }
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-  }
+        // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
+    }
 }
 
 class ForegroundService : Service() {
@@ -67,7 +69,7 @@ class ForegroundService : Service() {
             .setContentTitle("Your ride is on its way!")
             .setContentText("Estimated time: 3 minutes")
             .setProgress(100, 50, false) // Progress bar (max: 100, current progress: 50)
-            .setOngoing(true) 
+            .setOngoing(true)
             .setSmallIcon(android.R.drawable.ic_dialog_info) // Use a standard Android drawable
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
