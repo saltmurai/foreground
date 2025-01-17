@@ -102,7 +102,7 @@ class ForegroundService : Service() {
             .setContentText("Initializing...")
             .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
-            .setSmallIcon(R.drawable.icon)
+            .setSmallIcon(R.drawable.ic_app_icon)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -135,7 +135,7 @@ class ForegroundService : Service() {
                         .setProgress(100, progress, false)
                         .setOngoing(true)
                         .setSilent(true)
-                        .setSmallIcon(R.drawable.icon)
+                        .setSmallIcon(R.drawable.ic_app_icon)
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
