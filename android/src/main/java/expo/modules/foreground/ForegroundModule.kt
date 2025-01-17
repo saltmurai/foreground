@@ -84,6 +84,16 @@ class ForegroundService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        if (title == null) {
+            Log.e("ForegroundService", "No title provided for the notification.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        if (subtext == null) {
+            Log.e("ForegroundService", "No subtext provided for the notification.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         createNotificationChannel()
 
@@ -102,7 +112,7 @@ class ForegroundService : Service() {
         }
 
         // Start fetching updates from the endpoint
-        startFetchingUpdates(endpoint)
+        startFetchingUpdates(endpoint, title, subtext)
 
         return START_STICKY
     }
