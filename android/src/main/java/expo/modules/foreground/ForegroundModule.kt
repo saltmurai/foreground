@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import android.R
 
 import java.net.HttpURLConnection
 import java.net.URL
@@ -102,7 +103,7 @@ class ForegroundService : Service() {
             .setContentText("Initializing...")
             .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.mipmap.sym_def_app_icon)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -135,7 +136,7 @@ class ForegroundService : Service() {
                         .setProgress(100, progress, false)
                         .setOngoing(true)
                         .setSilent(true)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(android.R.mipmap.sym_def_app_icon)
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
