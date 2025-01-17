@@ -1,5 +1,7 @@
 # foreground-ss
 
+React Native Expo foreground service
+
 # Install guide
 
 ```
