@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.content.pm.ServiceInfo
-import android.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -103,7 +102,7 @@ class ForegroundService : Service() {
             .setContentText("Initializing...")
             .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
-            .setSmallIcon(android.R.mipmap.sym_def_app_icon)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -136,7 +135,7 @@ class ForegroundService : Service() {
                         .setProgress(100, progress, false)
                         .setOngoing(true)
                         .setSilent(true)
-                        .setSmallIcon(android.R.mipmap.sym_def_app_icon)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
