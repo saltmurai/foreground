@@ -6,7 +6,11 @@ declare class ForegroundModule extends NativeModule<ForegroundModuleEvents> {
   PI: number;
   hello(): string;
   setValueAsync(value: string): Promise<void>;
-  startForegroundService: (endpoint: string) => Promise<void>;
+  startForegroundService: (
+    endpoint: string,
+    title: string,
+    subtext: string
+  ) => Promise<void>;
   stopForegroundService: () => Promise<void>;
 }
 
