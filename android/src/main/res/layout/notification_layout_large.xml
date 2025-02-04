@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="12:00 PM까지 기사가 배차될 예정입니다." />
+        android:text="귀하의 차량이 곧 도착합니다!" />
 
     <TextView
         android:id="@+id/notification_body_large"
@@ -20,7 +20,7 @@
         android:layout_weight="1"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
-        android:text="서울 성북구 장원로 160, 래미안장위포레카운티." />
+        android:text="초기화 중..." />
 
     <ImageView
         android:id="@+id/imageView"

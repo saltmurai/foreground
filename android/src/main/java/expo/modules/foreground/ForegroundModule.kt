@@ -37,16 +37,17 @@ class ForegroundModule : Module() {
         Name("Foreground")
 
 
-        Function("startForegroundService") { endpoint: String, title: String, subtext: String ->
+        Function("startForegroundService") { endpoint: String, title: String, subtext: String, progress: Int ->
             val context = appContext.reactContext
             if (context != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    ForegroundService.startService(context, endpoint, title, subtext)
+                    ForegroundService.startService(context, endpoint, title, subtext, progress)
                 } else {
                     val serviceIntent = Intent(context, ForegroundService::class.java)
                     serviceIntent.putExtra("endpoint", endpoint)  // Pass the message via intent
                     serviceIntent.putExtra("title", title)
                     serviceIntent.putExtra("subtext", subtext)
+                    serviceIntent.putExtra("progress", progress)
                     context.startService(serviceIntent)
                 }
             } else {
@@ -81,6 +82,7 @@ class ForegroundService : Service() {
         val endpoint = intent?.getStringExtra("endpoint")
         val title = intent?.getStringExtra("title")
         val subtext = intent?.getStringExtra("subtext")
+        val progress = intent?.getIntExtra("progress", 0)
 
         if (endpoint == null) {
             Log.e("ForegroundService", "No endpoint provided for updates.")
@@ -97,12 +99,17 @@ class ForegroundService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        if (progress == null) {
+            Log.e("ForegroundService", "No progress provided for the notification.")
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         createNotificationChannel()
 
         val notification = NotificationCompat.Builder(this, "ChannelId")
-            .setContentTitle("Your ride is on its way!")
-            .setContentText("Initializing...")
+            .setContentTitle("귀하의 차량이 곧 도착합니다!")
+            .setContentText("초기화 중...")
             .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
             .setSmallIcon(R.mipmap.noti_ic_launcher)
@@ -115,7 +122,7 @@ class ForegroundService : Service() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            startFetchingUpdates(endpoint, title, subtext)
+            startFetchingUpdates(endpoint, title, subtext, progress)
         }
 
         return START_STICKY
@@ -126,14 +133,18 @@ class ForegroundService : Service() {
         updateJob?.cancel() // Stop the update job if the service is destroyed
     }
 
-    private fun startFetchingUpdates(endpoint: String, title: String, subtext: String) {
+    private fun startFetchingUpdates(endpoint: String, title: String, subtext: String, progress: Int) {
         updateJob = coroutineScope.launch {
-            while (true) {
                 try {
-                    val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
+                    // val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
 
                     val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
                     val notificationLayoutLarge = RemoteViews(packageName, R.layout.notification_layout_large)
+
+                    notificationLayout.setTextViewText(R.id.notification_title, title)
+                    notificationLayoutLarge.setTextViewText(R.id.notification_title_large, title)
+
+                    notificationLayoutLarge.setTextViewText(R.id.notification_body_large, subtext)
 
                     notificationLayout.setProgressBar(R.id.determinateBar, 100, progress, false)
                     notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progress, false)
@@ -160,17 +171,12 @@ class ForegroundService : Service() {
                         Log.d("ForegroundService", "Progress reached 100, stopping foreground service.")
                         stopSelf() // Call the method defined in the module
                         notificationManager.cancel(1)
-                        break
                     }
                     
                     notificationManager.notify(1, updatedNotification)
                 } catch (e: Exception) {
                     Log.e("ForegroundService", "Error fetching updates: ${e.message}", e)
                 }
-
-                delay(5000) 
-                // Fetch updates every 5 seconds
-            }
         }
     }
 
@@ -209,11 +215,12 @@ class ForegroundService : Service() {
     }
 
     companion object {
-        fun startService(context: Context, endpoint: String, title: String, subtext: String) {
+        fun startService(context: Context, endpoint: String, title: String, subtext: String, progress: Int) {
             val startIntent = Intent(context, ForegroundService::class.java)
             startIntent.putExtra("endpoint", endpoint)
             startIntent.putExtra("title", title)
             startIntent.putExtra("subtext", subtext)
+            startIntent.putExtra("progress", progress)
             ContextCompat.startForegroundService(context, startIntent)
         }
 

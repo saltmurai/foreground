@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="12:00 PM까지 기사가 배차될 예정입니다." />
+        android:text="귀하의 차량이 곧 도착합니다!" />
 
     <ProgressBar
       android:id="@+id/determinateBar"
