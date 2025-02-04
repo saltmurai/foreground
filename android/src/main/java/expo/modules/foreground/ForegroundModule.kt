@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.widget.RemoteViews
+import android.util.TypedValue
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
@@ -19,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import android.content.res.Resources
 
 import java.net.HttpURLConnection
 import java.net.URL
@@ -128,14 +131,26 @@ class ForegroundService : Service() {
                 try {
                     val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
 
+                    val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
+                    val notificationLayoutLarge = RemoteViews(packageName, R.layout.notification_layout_large)
+
+                    notificationLayout.setProgressBar(R.id.determinateBar, 100, progress, false)
+                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progress, false)
+
+                    val displayMetrics = Resources.getSystem().displayMetrics
+                    val screenWidth = displayMetrics.widthPixels 
+                    val screenWidthDp = screenWidth / displayMetrics.density
+                    Log.d("ForegroundService", "screenWidth: $screenWidthDp")
+                    val convertWidth = screenWidthDp - 104 - 16
+                    val calculateMargin = (convertWidth * progress) / 100
+                    notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
+
                     // Update the notification with new progress and estimate
                     val updatedNotification = NotificationCompat.Builder(this@ForegroundService, "ChannelId")
-                        .setContentTitle(title)
-                        .setContentText("$subtext: $estimate")
-                        .setProgress(100, progress, false)
-                        .setOngoing(true)
-                        .setSilent(true)
                         .setSmallIcon(R.mipmap.noti_ic_launcher)
+                        .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                        .setCustomContentView(notificationLayout)
+                        .setCustomBigContentView(notificationLayoutLarge)
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -152,7 +167,8 @@ class ForegroundService : Service() {
                     Log.e("ForegroundService", "Error fetching updates: ${e.message}", e)
                 }
 
-                delay(5000) // Fetch updates every 5 seconds
+                delay(5000) 
+                // Fetch updates every 5 seconds
             }
         }
     }

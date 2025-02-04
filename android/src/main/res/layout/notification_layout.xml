@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/notification_title"
+        style="@style/TextAppearance.Compat.Notification.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="12:00 PM까지 기사가 배차될 예정입니다." />
+
+    <ProgressBar
+      android:id="@+id/determinateBar"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:progress="0"
+      android:max="100"
+      android:layout_width="match_parent"
+      android:layout_height="8dp"
+      android:progressBackgroundTint="#969696"
+      android:progressTint="#076AEB"
+      android:layout_marginTop="8dp"
+      android:layout_marginBottom="8dp" />
+</LinearLayout>
