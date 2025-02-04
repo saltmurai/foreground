@@ -114,8 +114,9 @@ class ForegroundService : Service() {
             startForeground(1, notification)
         }
 
-        // Start fetching updates from the endpoint
-        startFetchingUpdates(endpoint, title, subtext)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            startFetchingUpdates(endpoint, title, subtext)
+        }
 
         return START_STICKY
     }
