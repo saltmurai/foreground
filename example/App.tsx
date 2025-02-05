@@ -1,73 +1,62 @@
-import { useEvent } from 'expo';
-import Foreground, { ForegroundView } from 'foreground';
-import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import * as Foreground from "foreground";
+import {
+  PermissionsAndroid,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function App() {
-  const onChangePayload = useEvent(Foreground, 'onChange');
-
+  const requestNotificationPermission = async () => {
+    try {
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          {
+            title: "Pick App Notification Permission",
+            message: "Pick app wants to enable notifications",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK",
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("Notification allowed");
+        } else {
+          console.log("Notification denied");
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  requestNotificationPermission();
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Text style={styles.header}>Module API Example</Text>
-        <Group name="Constants">
-          <Text>{Foreground.PI}</Text>
-        </Group>
-        <Group name="Functions">
-          <Text>{Foreground.hello()}</Text>
-        </Group>
-        <Group name="Async functions">
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await Foreground.setValueAsync('Hello from JS!');
-            }}
-          />
-        </Group>
-        <Group name="Events">
-          <Text>{onChangePayload?.value}</Text>
-        </Group>
-        <Group name="Views">
-          <ForegroundView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
-          />
-        </Group>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      {/* {Platform.OS === "ios" ? (
+        <View>
+          <Text>Start: {Foreground.startForegroundService("", "hi", "ha", 80)}</Text>
+          <Text>Stop: {Foreground.stopForegroundService()}</Text>
+        </View>
+      ) : null} */}
 
-function Group(props: { name: string; children: React.ReactNode }) {
-  return (
-    <View style={styles.group}>
-      <Text style={styles.groupHeader}>{props.name}</Text>
-      {props.children}
+      <View>
+        <TouchableOpacity
+          onPress={() => {
+            Foreground.startForegroundService("", "hi", "ha", 80);
+          }}
+        >
+          <Text>Start</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            Foreground.stopForegroundService();
+          }}
+        >
+          <Text>Stop</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
-
-const styles = {
-  header: {
-    fontSize: 30,
-    margin: 20,
-  },
-  groupHeader: {
-    fontSize: 20,
-    marginBottom: 20,
-  },
-  group: {
-    margin: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#eee',
-  },
-  view: {
-    flex: 1,
-    height: 200,
-  },
-};

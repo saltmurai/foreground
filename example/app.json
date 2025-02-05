@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "foreground-example",
+    "slug": "foreground-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": ["./plugins/withForegroundService.js"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "expo.modules.foreground.example",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription":
+          "고객님의 위치와 앱 사용 데이터를 기반으로 최적의 대리운전 서비스를 제공하며, 맞춤형 추천과 알림을 드리기 위해 데이터를 사용합니다.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription":
+          "고객님의 위치와 앱 사용 데이터를 기반으로 최적의 대리운전 서비스를 제공하며, 맞춤형 추천과 알림을 드리기 위해 데이터를 사용합니다.",
+        "NSLocationWhenInUseUsageDescription":
+          "고객님의 위치와 앱 사용 데이터를 기반으로 최적의 대리운전 서비스를 제공하며, 맞춤형 추천과 알림을 드리기 위해 데이터를 사용합니다.",
+        "NSLocationAlwaysUsageDescription":
+          "고객님의 위치와 앱 사용 데이터를 기반으로 최적의 대리운전 서비스를 제공하며, 맞춤형 추천과 알림을 드리기 위해 데이터를 사용합니다.",
+        "NSContactsUsageDescription":
+          "앱의 일부 기능을 사용할 때 친구를 초대할 수 있도록 연락처 접근 권한이 필요합니다."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "expo.modules.foreground.example",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+        "android.permission.READ_CONTACTS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
