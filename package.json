@@ -13,7 +13,8 @@
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
     "open:ios": "xed example/ios",
-    "open:android": "open -a \"Android Studio\" example/android"
+    "open:android": "open -a \"Android Studio\" example/android",
+    "new-build": "bun x tsc --build ./ ./plugin"
   },
   "keywords": [
     "react-native",
@@ -28,12 +29,20 @@
   "author": "saltmurai266 <phamsang6260@gmail.com> (https://github.com/saltmurai)",
   "license": "MIT",
   "homepage": "https://github.com/saltmurai/foreground#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@expo/config-plugins": "^7.2.5"
+  },
   "devDependencies": {
+    "@types/node": "20.6.0",
     "@types/react": "~18.3.12",
+    "@types/react-native": "0.72.2",
     "expo": "~52.0.0",
     "expo-module-scripts": "^4.0.3",
-    "react-native": "0.76.0"
+    "expo-modules-core": "^1.5.11",
+    "prettier": "^3.0.3",
+    "react": "18.3.1",
+    "react-native": "0.76.0",
+    "typescript": "^5.2.2"
   },
   "peerDependencies": {
     "expo": "*",

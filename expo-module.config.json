@@ -1,5 +1,6 @@
 {
   "platforms": [
+    "ios",
     "apple",
     "android",
     "web"
@@ -13,5 +14,8 @@
     "modules": [
       "expo.modules.foreground.ForegroundModule"
     ]
+  },
+  "ios": {
+    "modules": ["ReactNativeWidgetExtensionModule"]
   }
 }

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import android.content.res.Resources
-
+import kotlin.random.Random
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -135,6 +135,7 @@ class ForegroundService : Service() {
 
     private fun startFetchingUpdates(endpoint: String, title: String, subtext: String, progress: Int) {
         updateJob = coroutineScope.launch {
+            while(true) {
                 try {
                     // val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
 
@@ -155,7 +156,10 @@ class ForegroundService : Service() {
                     Log.d("ForegroundService", "screenWidth: $screenWidthDp")
                     val convertWidth = screenWidthDp - 104 - 16
                     val calculateMargin = (convertWidth * progress) / 100
-                    notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
+
+                    val decimal = Random.nextDouble(0.0, 90.0) // Số thập phân từ 0.0 đến 1.0
+                    // notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
+                    notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, decimal.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
 
                     // Update the notification with new progress and estimate
                     val updatedNotification = NotificationCompat.Builder(this@ForegroundService, "ChannelId")
@@ -163,6 +167,7 @@ class ForegroundService : Service() {
                         .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                         .setCustomContentView(notificationLayout)
                         .setCustomBigContentView(notificationLayoutLarge)
+                        .setOnlyAlertOnce(true)
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -171,12 +176,16 @@ class ForegroundService : Service() {
                         Log.d("ForegroundService", "Progress reached 100, stopping foreground service.")
                         stopSelf() // Call the method defined in the module
                         notificationManager.cancel(1)
+                        break
                     }
                     
                     notificationManager.notify(1, updatedNotification)
                 } catch (e: Exception) {
                     Log.e("ForegroundService", "Error fetching updates: ${e.message}", e)
                 }
+
+                delay(5000)
+            }
         }
     }
 
