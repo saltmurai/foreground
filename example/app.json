@@ -12,7 +12,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "plugins": ["./plugins/withForegroundService.js"],
+    "plugins": [
+      "./plugins/withForegroundService.js",
+      [
+        "../app.plugin.js",
+        { "frequentUpdates": true, "widgetsFolder": "SampleWidgetExtension" }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "expo.modules.foreground.example",
