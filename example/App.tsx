@@ -41,7 +41,7 @@ export default function App() {
       {Platform.OS === "ios" ? (
         <View>
           <Text>
-            Start: {Foreground.startForegroundService("http://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 40)}
+            Start: {Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 40)}
           </Text>
           <Text>Stop: {Foreground.stopForegroundService()}</Text>
           {Foreground.areActivitiesEnabled() ? (
@@ -52,6 +52,7 @@ export default function App() {
                     "귀하의 차량이 곧 도착합니다! title",
                     "귀하의 차량이 곧 도착합니다! hihihi",
                     20,
+                    "https://pick-api.xyz/ride/info/test/widget?uid=9"
                   )
                 }
                 title="Start Live Activity"
