@@ -41,7 +41,7 @@ export default function App() {
       {Platform.OS === "ios" ? (
         <View>
           <Text>
-            Start: {Foreground.startForegroundService("", "hi", "ha", 80)}
+            Start: {Foreground.startForegroundService("http://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 40)}
           </Text>
           <Text>Stop: {Foreground.stopForegroundService()}</Text>
           {Foreground.areActivitiesEnabled() ? (
@@ -83,7 +83,7 @@ export default function App() {
         <View>
           <TouchableOpacity
             onPress={() => {
-              Foreground.startForegroundService("", "hi", "ha", 80);
+              Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
             }}
           >
             <Text>Start</Text>
