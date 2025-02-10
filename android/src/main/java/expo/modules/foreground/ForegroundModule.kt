@@ -137,29 +137,61 @@ class ForegroundService : Service() {
         updateJob = coroutineScope.launch {
             while(true) {
                 try {
-                    // val (progress, estimate) = fetchUpdateFromEndpoint(endpoint)
+                    val updateData = fetchUpdateFromEndpoint(endpoint)
+
+                    if (updateData.isEmpty()) {
+                        Log.e("ForegroundService", "No update data received, stopping service.")
+                        stopSelf()
+                        break
+                    }
+
+                    val startMemo = updateData["startMemo"] as? String ?: "N/A"
+                    val endMemo = updateData["endMemo"] as? String ?: "N/A"
+                    val rideId = updateData["rideId"] as? Int ?: 0
+                    val rideStatus = updateData["rideStatus"] as? String ?: "UNKNOWN"
+
+                    Log.d("ForegroundService", "Start: $startMemo, End: $endMemo, Ride ID: $rideId, Status: $rideStatus")
+
+                    val textTitle = when (rideStatus) {
+                        "RECEPTION" -> "Text for reception"
+                        "DISPATCH" -> "Text for dispatch"
+                        "ENROUTE" -> "Text for enroute"
+                        else -> "귀하의 차량이 곧 도착합니다!"
+                    }
+
+                    val subTextTitle = when (rideStatus) {
+                        "RECEPTION" -> "subText for reception"
+                        "DISPATCH" -> "subText for dispatch"
+                        "ENROUTE" -> "subText for enroute"
+                        else -> "초기화 중..."
+                    }
+
+                    val prog = when (rideStatus) {
+                        "RECEPTION" -> 20
+                        "DISPATCH" -> 50
+                        "ENROUTE" -> 80
+                        else -> 0
+                    }
 
                     val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
                     val notificationLayoutLarge = RemoteViews(packageName, R.layout.notification_layout_large)
 
-                    notificationLayout.setTextViewText(R.id.notification_title, title)
-                    notificationLayoutLarge.setTextViewText(R.id.notification_title_large, title)
+                    notificationLayout.setTextViewText(R.id.notification_title, textTitle)
+                    notificationLayoutLarge.setTextViewText(R.id.notification_title_large, textTitle)
 
-                    notificationLayoutLarge.setTextViewText(R.id.notification_body_large, subtext)
+                    notificationLayoutLarge.setTextViewText(R.id.notification_body_large, subTextTitle)
 
-                    notificationLayout.setProgressBar(R.id.determinateBar, 100, progress, false)
-                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progress, false)
+                    notificationLayout.setProgressBar(R.id.determinateBar, 100, prog, false)
+                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, prog, false)
 
                     val displayMetrics = Resources.getSystem().displayMetrics
                     val screenWidth = displayMetrics.widthPixels 
                     val screenWidthDp = screenWidth / displayMetrics.density
                     Log.d("ForegroundService", "screenWidth: $screenWidthDp")
                     val convertWidth = screenWidthDp - 104 - 16
-                    val calculateMargin = (convertWidth * progress) / 100
+                    val calculateMargin = (convertWidth * prog) / 100
 
-                    val decimal = Random.nextDouble(0.0, 90.0) // Số thập phân từ 0.0 đến 1.0
-                    // notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
-                    notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, decimal.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
+                    notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
 
                     // Update the notification with new progress and estimate
                     val updatedNotification = NotificationCompat.Builder(this@ForegroundService, "ChannelId")
@@ -189,28 +221,40 @@ class ForegroundService : Service() {
         }
     }
 
-    private fun fetchUpdateFromEndpoint(endpoint: String): Pair<Int, Int> {
+    private fun fetchUpdateFromEndpoint(endpoint: String): Map<String, Any> {
         val urlConnection = URL(endpoint).openConnection() as HttpURLConnection
         return try {
             urlConnection.requestMethod = "GET"
-
+    
             if (urlConnection.responseCode == 200) {
                 val response = urlConnection.inputStream.bufferedReader().use { it.readText() }
-
-                // Assume the response is in JSON format: { "progress": 50, "estimate": 3 }
+    
+                // Parse JSON response
                 val json = org.json.JSONObject(response)
-                val progress = json.getInt("progress")
-                val estimate = json.getInt("estimate")
 
-                progress to estimate
+                if (json.has("result")) {
+                    val result = json.getJSONObject("result")
+
+                    mapOf(
+                        "startMemo" to result.getString("startMemo"),
+                        "endMemo" to result.getString("endMemo"),
+                        "rideId" to result.getInt("rideId"),
+                        "rideStatus" to result.getString("rideStatus")
+                    )
+                } else {
+                    Log.e("ForegroundService", "API response is missing 'result' field")
+                    return emptyMap()
+                }
+               
             } else {
                 Log.e("ForegroundService", "Failed to fetch updates: HTTP ${urlConnection.responseCode}")
-                0 to 0 // Default values on failure
+                emptyMap()
             }
         } finally {
             urlConnection.disconnect()
         }
     }
+    
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
