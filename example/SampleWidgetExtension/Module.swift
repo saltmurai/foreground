@@ -142,7 +142,7 @@ public class ForegroundModule: Module {
                 
                 Task {
                     for activity in Activity<SportsLiveActivityAttributes>.activities {
-                        await activity.end(finalContent, dismissalPolicy: .default)
+                        await activity.end(finalContent, dismissalPolicy: .immediate)
                     }
                 }
             }
