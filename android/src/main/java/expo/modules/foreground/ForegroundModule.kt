@@ -149,20 +149,19 @@ class ForegroundService : Service() {
                     val endMemo = updateData["endMemo"] as? String ?: "N/A"
                     val rideId = updateData["rideId"] as? Int ?: 0
                     val rideStatus = updateData["rideStatus"] as? String ?: "UNKNOWN"
+                    val displayTime = updateData["displayTime"] as? String ?: "UNKNOWN"
 
-                    Log.d("ForegroundService", "Start: $startMemo, End: $endMemo, Ride ID: $rideId, Status: $rideStatus")
+                    Log.d("ForegroundService", "Start: $startMemo, End: $endMemo, Ride ID: $rideId, Status: $rideStatus, displayTime: $displayTime")
 
                     val textTitle = when (rideStatus) {
-                        "RECEPTION" -> "Text for reception"
-                        "DISPATCH" -> "Text for dispatch"
-                        "ENROUTE" -> "Text for enroute"
+                        "RECEPTION" -> "$displayTime 까지 기사가 배차될 예정입니다."
+                        "DISPATCH" -> "$displayTime 까지 기사가 도착할 예정입니다"
+                        "ENROUTE" -> "안전하게 목적지까지 운행중입니다."
                         else -> "귀하의 차량이 곧 도착합니다!"
                     }
 
                     val subTextTitle = when (rideStatus) {
-                        "RECEPTION" -> "subText for reception"
-                        "DISPATCH" -> "subText for dispatch"
-                        "ENROUTE" -> "subText for enroute"
+                       "RECEPTION", "DISPATCH", "ENROUTE" -> endMemo
                         else -> "초기화 중..."
                     }
 
