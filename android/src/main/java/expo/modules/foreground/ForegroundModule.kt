@@ -238,7 +238,8 @@ class ForegroundService : Service() {
                         "startMemo" to result.getString("startMemo"),
                         "endMemo" to result.getString("endMemo"),
                         "rideId" to result.getInt("rideId"),
-                        "rideStatus" to result.getString("rideStatus")
+                        "rideStatus" to result.getString("rideStatus"),
+                        "displayTime" to result.getString("displayTime")
                     )
                 } else {
                     Log.e("ForegroundService", "API response is missing 'result' field")
