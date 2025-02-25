@@ -1,9 +1,12 @@
 import * as Foreground from "foreground";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
+  Modal,
   PermissionsAndroid,
   Platform,
+  Pressable,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -44,24 +47,39 @@ export default function App() {
       Foreground.hideSplash();
     }, 3000);
   }, []);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       {Platform.OS === "ios" ? (
         <View>
           <Text>
-            Start: {Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 40)}
+            Start:{" "}
+            {Foreground.startForegroundService(
+              "https://pick-api.xyz/ride/info/test/widget?uid=9",
+              "hi",
+              "ha",
+              40
+            )}
           </Text>
           <Text>Stop: {Foreground.stopForegroundService()}</Text>
           {Foreground.areActivitiesEnabled() ? (
             <View>
               <Button
                 onPress={() =>
-                  Foreground.startActivity(
-                    "귀하의 차량이 곧 도착합니다! title",
-                    "귀하의 차량이 곧 도착합니다! hihihi",
-                    20,
-                    "https://pick-api.xyz/ride/info/test/widget?uid=9"
-                  )
+                  // Foreground.startActivity(
+                  //   "귀하의 차량이 곧 도착합니다! title",
+                  //   "귀하의 차량이 곧 도착합니다! hihihi",
+                  //   20,
+                  //   "https://pick-api.xyz/ride/info/test/widget?uid=9"
+                  // )
+                  {
+                    Foreground.showSplash();
+                    setTimeout(() => {
+                      // Foreground.hideSplash();
+                      setIsPopupVisible(true);
+                    }, 3000);
+                  }
                 }
                 title="Start Live Activity"
               />
@@ -70,7 +88,7 @@ export default function App() {
                   Foreground.updateActivity(
                     "귀하의 차량이 곧 도착합니다! title update",
                     "귀하의 차량이 곧 도착합니다! hihihi update",
-                    80,
+                    80
                   )
                 }
                 title="Update Live Activity"
@@ -80,7 +98,7 @@ export default function App() {
                   Foreground.endActivity(
                     "귀하의 차량이 곧 도착합니다! title end",
                     "귀하의 차량이 곧 도착합니다! hihihi end",
-                    100,
+                    100
                   )
                 }
                 title="End Live Activity"
@@ -95,7 +113,8 @@ export default function App() {
               // Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
               Foreground.showSplash();
               setTimeout(() => {
-                Foreground.hideSplash();
+                // Foreground.hideSplash();
+                setIsPopupVisible(true);
               }, 3000);
             }}
           >
@@ -110,6 +129,71 @@ export default function App() {
           </TouchableOpacity>
         </View>
       )}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isPopupVisible}
+        onRequestClose={() => {
+          setIsPopupVisible(!isPopupVisible);
+          Foreground.hideSplash();
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Hello World!</Text>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => {
+                setIsPopupVisible(!isPopupVisible), Foreground.hideSplash();
+              }}
+            >
+              <Text style={styles.textStyle}>Hide Modal</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
+});

@@ -50,6 +50,7 @@ const withWidgetsAndLiveActivities: ConfigPlugin<{
         widgetsFolder,
         moduleFileName,
         attributesFileName,
+        backgroundImage
       },
     ],
     [withWidgetExtensionEntitlements, { targetName, groupIdentifier }],
