@@ -1,8 +1,8 @@
 import ExpoModulesCore
 
-public class SplashScreenModule: Module {
+public class SplashSCModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("SplashScreen")
+    Name("SplashSC")
 
     Function("show") {
     }
