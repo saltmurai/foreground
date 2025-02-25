@@ -1,4 +1,4 @@
-import * as Foreground from "foreground";
+import { Foreground, SplashScreen } from "foreground";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -42,9 +42,9 @@ export default function App() {
   requestNotificationPermission();
 
   useEffect(() => {
-    // Foreground.showSplash();
+    // SplashScreen.showSplash();
     setTimeout(() => {
-      Foreground.hideSplash();
+      SplashScreen.hideSplash();
     }, 3000);
   }, []);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -74,9 +74,9 @@ export default function App() {
                   //   "https://pick-api.xyz/ride/info/test/widget?uid=9"
                   // )
                   {
-                    Foreground.showSplash();
+                    SplashScreen.showSplash();
                     setTimeout(() => {
-                      // Foreground.hideSplash();
+                      // SplashScreen.hideSplash();
                       setIsPopupVisible(true);
                     }, 3000);
                   }
@@ -111,9 +111,9 @@ export default function App() {
           <TouchableOpacity
             onPress={() => {
               // Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
-              Foreground.showSplash();
+              SplashScreen.showSplash();
               setTimeout(() => {
-                // Foreground.hideSplash();
+                // SplashScreen.hideSplash();
                 setIsPopupVisible(true);
               }, 3000);
             }}
@@ -135,7 +135,7 @@ export default function App() {
         visible={isPopupVisible}
         onRequestClose={() => {
           setIsPopupVisible(!isPopupVisible);
-          Foreground.hideSplash();
+          SplashScreen.hideSplash();
         }}
       >
         <View style={styles.centeredView}>
@@ -144,7 +144,7 @@ export default function App() {
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => {
-                setIsPopupVisible(!isPopupVisible), Foreground.hideSplash();
+                setIsPopupVisible(!isPopupVisible), SplashScreen.hideSplash();
               }}
             >
               <Text style={styles.textStyle}>Hide Modal</Text>
