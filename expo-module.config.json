@@ -7,15 +7,17 @@
   ],
   "apple": {
     "modules": [
-      "ForegroundModule"
+      "ForegroundModule",
+      "SplashSCModule"
     ]
   },
   "android": {
     "modules": [
-      "expo.modules.foreground.ForegroundModule"
+      "expo.modules.foreground.ForegroundModule",
+      "expo.modules.splashscreen.SplashSCModule"
     ]
   },
   "ios": {
-    "modules": ["ReactNativeWidgetExtensionModule"]
+    "modules": ["ReactNativeWidgetExtensionModule", "SplashSCModule"]
   }
 }

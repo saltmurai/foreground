@@ -4,6 +4,7 @@ import { withPodfile } from "./withPodfile";
 
 import { withXcode } from "./withXcode";
 import { withWidgetExtensionEntitlements } from "./withWidgetExtensionEntitlements";
+import withSplashBackground from "./withSplashBackground";
 
 const withWidgetsAndLiveActivities: ConfigPlugin<{
   frequentUpdates?: boolean;
@@ -12,6 +13,7 @@ const withWidgetsAndLiveActivities: ConfigPlugin<{
   moduleFileName?: string;
   attributesFileName?: string;
   groupIdentifier?: string;
+  backgroundImage?: string;
 }> = (
   config,
   {
@@ -21,6 +23,7 @@ const withWidgetsAndLiveActivities: ConfigPlugin<{
     moduleFileName = "Module.swift",
     attributesFileName = "Attributes.swift",
     groupIdentifier,
+    backgroundImage
   }
 ) => {
   const targetName = `${IOSConfig.XcodeUtils.sanitizedName(
@@ -52,6 +55,7 @@ const withWidgetsAndLiveActivities: ConfigPlugin<{
     [withWidgetExtensionEntitlements, { targetName, groupIdentifier }],
     [withPodfile, { targetName }],
     [withConfig, { targetName, bundleIdentifier, groupIdentifier }],
+    [withSplashBackground, { backgroundImage }],
   ]);
 
   return config;

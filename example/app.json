@@ -8,15 +8,15 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
+      "image": "./assets/bgintro.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "plugins": [
       "./plugins/withForegroundService.js",
       [
         "../app.plugin.js",
-        { "frequentUpdates": true, "widgetsFolder": "SampleWidgetExtension" }
+        { "frequentUpdates": true, "widgetsFolder": "SampleWidgetExtension", "backgroundImage": "./assets/bgintro.png" }
       ]
     ],
     "ios": {
@@ -38,7 +38,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#15155F"
       },
       "package": "expo.modules.foreground.example",
       "permissions": [

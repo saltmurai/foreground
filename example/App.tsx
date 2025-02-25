@@ -1,4 +1,5 @@
 import * as Foreground from "foreground";
+import { useEffect } from "react";
 import {
   Button,
   PermissionsAndroid,
@@ -36,6 +37,13 @@ export default function App() {
     }
   };
   requestNotificationPermission();
+
+  useEffect(() => {
+    // Foreground.showSplash();
+    setTimeout(() => {
+      Foreground.hideSplash();
+    }, 3000);
+  }, []);
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       {Platform.OS === "ios" ? (
@@ -84,7 +92,11 @@ export default function App() {
         <View>
           <TouchableOpacity
             onPress={() => {
-              Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
+              // Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
+              Foreground.showSplash();
+              setTimeout(() => {
+                Foreground.hideSplash();
+              }, 3000);
             }}
           >
             <Text>Start</Text>

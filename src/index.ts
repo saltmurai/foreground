@@ -1,4 +1,5 @@
 import ForegroundModule from './ForegroundModule';
+import SplashSCModule from './SplashSCModule';
 
 export function startForegroundService(endpoint: string, title: string, subtext: string, progress: number) {
   return ForegroundModule.startForegroundService(endpoint, title, subtext, progress);
@@ -23,3 +24,12 @@ export function updateActivity(...args: any): void {
 export function endActivity(...args: any): void {
   return ForegroundModule.endActivity(...args);
 }
+
+export function hideSplash(): any {
+  return SplashSCModule.hide();
+}
+
+export function showSplash(): any {
+  return SplashSCModule.show();
+}
+
