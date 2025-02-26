@@ -17,38 +17,43 @@ public class SplashSCModule: Module {
 
         Function("hide") {
             DispatchQueue.main.async {
-                self.splashView?.removeFromSuperview()
-                self.splashView = nil
+                guard let splashView = self.splashView else { return }
+
+                UIView.animate(withDuration: 0.3, animations: {
+                    splashView.alpha = 0
+                }) { _ in
+                    splashView.removeFromSuperview()
+                    self.splashView = nil
+                }
             }
         }
     }
 
     private func showSplashScreen() {
         DispatchQueue.main.async {
-            self.createAndShowSplashScreen()
+            if self.splashView == nil {
+                self.createAndShowSplashScreen()
+            }
         }
     }
 
-   private func createAndShowSplashScreen() {
-    guard let window = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene })
-        .flatMap({ $0.windows })
-        .first(where: { $0.isKeyWindow }) else { return }
+    private func createAndShowSplashScreen() {
+        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
 
-    if self.splashView == nil {
-        let splashView = UIView(frame: window.bounds)
-        splashView.backgroundColor = UIColor.black
+        if self.splashView == nil {
+            let splashView = UIView(frame: window.bounds)
+            splashView.backgroundColor = UIColor.black
 
-        if let splashImage = UIImage(named: "SplashImage") {
-            let splashImageView = UIImageView(image: splashImage)
-            splashImageView.contentMode = .scaleAspectFill
-            splashImageView.frame = splashView.bounds
+            if let splashImage = UIImage(named: "SplashImage") {
+                let splashImageView = UIImageView(image: splashImage)
+                splashImageView.contentMode = .scaleAspectFill
+                splashImageView.frame = splashView.bounds
 
-            splashView.addSubview(splashImageView)
+                splashView.addSubview(splashImageView)
+            }
+
+            window.addSubview(splashView)
+            self.splashView = splashView
         }
-
-        window.addSubview(splashView)
-        self.splashView = splashView
     }
-   }
 }

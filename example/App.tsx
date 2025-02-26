@@ -16,6 +16,7 @@ const scoreLeft = 2;
 const scoreRight = 3;
 const bottomText = "Hello, world!";
 export default function App() {
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   const requestNotificationPermission = async () => {
     try {
       if (Platform.OS === "android") {
@@ -44,10 +45,13 @@ export default function App() {
   useEffect(() => {
     // SplashScreen.showSplash();
     setTimeout(() => {
-      SplashScreen.hideSplash();
+      // SplashScreen.hideSplash();
+    setIsPopupVisible(true)
+
     }, 3000);
+    // setIsPopupVisible(true)
   }, []);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+ 
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
