@@ -7,9 +7,9 @@ public class SplashSCModule: Module {
     public func definition() -> ModuleDefinition {
         Name("SplashSC")
 
-        OnCreate {
-            self.showSplashScreen()
-        }
+        // OnCreate {
+        //     self.showSplashScreen()
+        // }
 
         Function("show") {
             self.showSplashScreen()
