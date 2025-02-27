@@ -10,14 +10,27 @@ struct SportsLiveActivity: Widget {
                     Image("Pick")
                         .resizable()
                         .frame(width: 18, height: 18)
-                        
-                    Text("픽대리").font(.headline).foregroundColor(.primary).lineLimit(1)
-                }.padding(.top, 5)
+                        .foregroundColor(.primary)
+                        .accessibilityIgnoresInvertColors(true)
+
+                    Text("픽대리")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                }
+                .padding(.top, 5)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(context.state.title).font(.system(size: 18, weight: .bold)).foregroundColor(.primary).lineLimit(1)
-                    Text(context.state.subTitle).font(.system(size: 16, weight: .regular)).foregroundColor(.secondary).lineLimit(1)
-                }.padding(.bottom, 10)
+                    Text(context.state.title)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Text(context.state.subTitle)
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                .padding(.bottom, 10)
 
                 VStack {
                     GeometryReader { geometry in
@@ -30,36 +43,41 @@ struct SportsLiveActivity: Widget {
                             Image("Cars")
                                 .resizable()
                                 .frame(width: 32, height: 32)
+                                .foregroundColor(.primary)
                                 .offset(x: (CGFloat(context.state.progress) / 100.0) * geometry.size.width - 16, y: -24)
+                                .accessibilityIgnoresInvertColors(true)
                         }
                     }
                     .padding(.top, 18)
                     .padding(.bottom, 10)
-                    .frame(height: 32) 
-                }.padding(.bottom, 10)
+                    .frame(height: 32)
+                }
+                .padding(.bottom, 10)
 
                 Spacer()
-            }.padding(.top, 15).padding(.bottom, 8).padding(.horizontal, 15).activityBackgroundTint(.white).activitySystemActionForegroundColor(.black)
+            }
+            .padding(.top, 15)
+            .padding(.bottom, 8)
+            .padding(.horizontal, 15)
+            .background(Color(uiColor: .systemBackground))
+            .activitySystemActionForegroundColor(.primary)
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    Text("Leading").foregroundColor(.primary)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
+                    Text("Trailing").foregroundColor(.primary)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom")
-                    // more content
+                    Text("Bottom").foregroundColor(.primary)
                 }
             } compactLeading: {
-                Text("L")
+                Text("L").foregroundColor(.primary)
             } compactTrailing: {
-                Text("T")
+                Text("T").foregroundColor(.primary)
             } minimal: {
-                Text("Min")
+                Text("Min").foregroundColor(.primary)
             }
             .widgetURL(URL(string: "http://www.apple.com"))
             .keylineTint(Color.red)
@@ -68,7 +86,7 @@ struct SportsLiveActivity: Widget {
 }
 
 struct SportsLiveActivityPreviews: PreviewProvider {
-    static let future = Calendar.current.date(byAdding: .minute, value: (Int(15) ), to: Date())!
+    static let future = Calendar.current.date(byAdding: .minute, value: (15), to: Date())!
     static let attributes = SportsLiveActivityAttributes()
     static let contentState = SportsLiveActivityAttributes.ContentState(title: "귀하의 차량이 곧 도착합니다!", subTitle: "초기화 중...", progress: 0)
 
@@ -84,4 +102,3 @@ struct SportsLiveActivityPreviews: PreviewProvider {
             .previewDisplayName("Minimal")
     }
 }
-

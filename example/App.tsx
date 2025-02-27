@@ -71,19 +71,19 @@ export default function App() {
             <View>
               <Button
                 onPress={() =>
-                  // Foreground.startActivity(
-                  //   "귀하의 차량이 곧 도착합니다! title",
-                  //   "귀하의 차량이 곧 도착합니다! hihihi",
-                  //   20,
-                  //   "https://pick-api.xyz/ride/info/test/widget?uid=9"
-                  // )
-                  {
-                    SplashScreen.showSplash();
-                    setTimeout(() => {
-                      // SplashScreen.hideSplash();
-                      setIsPopupVisible(true);
-                    }, 3000);
-                  }
+                  Foreground.startActivity(
+                    "귀하의 차량이 곧 도착합니다! title",
+                    "귀하의 차량이 곧 도착합니다! hihihi",
+                    20,
+                    "https://pick-api.xyz/ride/info/test/widget?uid=9"
+                  )
+                  // {
+                  //   SplashScreen.showSplash();
+                  //   setTimeout(() => {
+                  //     // SplashScreen.hideSplash();
+                  //     setIsPopupVisible(true);
+                  //   }, 3000);
+                  // }
                 }
                 title="Start Live Activity"
               />
@@ -114,12 +114,12 @@ export default function App() {
         <View>
           <TouchableOpacity
             onPress={() => {
-              // Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
-              SplashScreen.showSplash();
-              setTimeout(() => {
-                // SplashScreen.hideSplash();
-                setIsPopupVisible(true);
-              }, 3000);
+              Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
+              // SplashScreen.showSplash();
+              // setTimeout(() => {
+              //   // SplashScreen.hideSplash();
+              //   setIsPopupVisible(true);
+              // }, 3000);
             }}
           >
             <Text>Start</Text>

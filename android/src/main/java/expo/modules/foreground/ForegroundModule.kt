@@ -113,6 +113,7 @@ class ForegroundService : Service() {
             .setProgress(100, 0, true) // Indeterminate progress initially
             .setOngoing(true)
             .setSmallIcon(R.mipmap.noti_ic_launcher)
+            .setContentIntent(createPendingIntent())
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -199,6 +200,7 @@ class ForegroundService : Service() {
                         .setCustomContentView(notificationLayout)
                         .setCustomBigContentView(notificationLayoutLarge)
                         .setOnlyAlertOnce(true)
+                        .setContentIntent(createPendingIntent())
                         .build()
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -265,6 +267,14 @@ class ForegroundService : Service() {
             val manager = getSystemService(NotificationManager::class.java)
             manager!!.createNotificationChannel(serviceChannel)
         }
+    }
+
+    private fun createPendingIntent(): PendingIntent {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     companion object {
