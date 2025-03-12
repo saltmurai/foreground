@@ -193,8 +193,8 @@ class ForegroundService : Service() {
 
                     notificationLayoutLarge.setTextViewText(R.id.notification_body_large, subTextTitle)
 
-                    notificationLayout.setProgressBar(R.id.determinateBar, 100, progressPercentage, false)
-                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progressPercentage, false)
+                    notificationLayout.setProgressBar(R.id.determinateBar, 100, progressPercentage.toInt(), false)
+                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progressPercentage.toInt(), false)
 
                     notificationLayoutLarge.setImageViewResource(R.id.imageView, imageRes)
                     notificationLayoutLarge.setImageViewResource(R.id.imageViewEnd, imageEndRes)
@@ -261,7 +261,7 @@ class ForegroundService : Service() {
                         "rideId" to result.getInt("rideId"),
                         "rideStatus" to result.getString("rideStatus"),
                         "displayTime" to result.getString("displayTime"),
-                        "progressPercentage" to result.getInt("progressPercentage")
+                        "progressPercentage" to result.getDouble("progressPercentage")
                     )
                 } else {
                     Log.e("ForegroundService", "API response is missing 'result' field")
