@@ -207,7 +207,7 @@ class ForegroundService : Service() {
                     val calculateMargin = if (rideStatus == "RECEPTION") {
                         0
                     } else {
-                        (convertWidth * progressPercentage) / 100
+                        (convertWidth * progressPercentage.toInt()) / 100
                     }
 
                     notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
