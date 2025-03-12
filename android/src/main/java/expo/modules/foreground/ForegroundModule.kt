@@ -194,11 +194,7 @@ class ForegroundService : Service() {
                         else -> R.drawable.location
                     }
 
-                    val prog = if (rideStatus == "RECEPTION") {
-                        0
-                    } else {
-                        ((1 - mDiff.toDouble() / maxMinutesForThisStatus) * 100).toInt()
-                    }
+                    val prog = ((1 - mDiff.toDouble() / maxMinutesForThisStatus) * 100).toInt();
 
                     val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
                     val notificationLayoutLarge = RemoteViews(packageName, R.layout.notification_layout_large)
@@ -219,7 +215,11 @@ class ForegroundService : Service() {
                     val screenWidthDp = screenWidth / displayMetrics.density
                     Log.d("ForegroundService", "screenWidth: $screenWidthDp")
                     val convertWidth = screenWidthDp - 104 - 16 - 36
-                    val calculateMargin = (convertWidth * prog) / 100
+                    val calculateMargin = if (rideStatus == "RECEPTION") {
+                        0
+                    } else {
+                        (convertWidth * prog) / 100
+                    }
 
                     notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
 
