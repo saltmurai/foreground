@@ -25,6 +25,10 @@ import android.content.res.Resources
 import kotlin.random.Random
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.Duration
+import java.time.ZoneId
 
 class ForegroundModule : Module() {
     // Each module class must implement the definition function. The definition consists of components
@@ -150,7 +154,8 @@ class ForegroundService : Service() {
                     val endMemo = updateData["endMemo"] as? String ?: "N/A"
                     val rideId = updateData["rideId"] as? Int ?: 0
                     val rideStatus = updateData["rideStatus"] as? String ?: "UNKNOWN"
-                    val displayTime = updateData["displayTime"] as? String ?: "UNKNOWN"
+                    val displayTime = updateData["displayTime"] as? String ?: "UNKNOWN" //17:40
+                    val maxMinutesForThisStatus = updateData["maxMinutesForThisStatus"] as? Int ?: 0
 
                     Log.d("ForegroundService", "Start: $startMemo, End: $endMemo, Ride ID: $rideId, Status: $rideStatus, displayTime: $displayTime")
 
@@ -162,15 +167,37 @@ class ForegroundService : Service() {
                     }
 
                     val subTextTitle = when (rideStatus) {
-                       "RECEPTION", "DISPATCH", "ENROUTE" -> endMemo
+                       "RECEPTION", "DISPATCH", "ENROUTE" -> "출발: $startMemo"
                         else -> "초기화 중..."
                     }
+                    val formatter = DateTimeFormatter.ofPattern("HH:mm")
+                    val now = LocalTime.now(ZoneId.of("Asia/Seoul"))
+                    val targetTime = LocalTime.parse(displayTime, formatter)
+                    val mDiff = try {
+                        val minutesDiff = Duration.between(now, targetTime).toMinutes().toInt()
+                        minutesDiff.coerceAtLeast(0)
+                    } catch (e: Exception) {
+                        0
+                    }
 
-                    val prog = when (rideStatus) {
-                        "RECEPTION" -> 20
-                        "DISPATCH" -> 50
-                        "ENROUTE" -> 80
-                        else -> 0
+                    val imageRes = when (rideStatus) {
+                        "RECEPTION" -> R.drawable.counselor
+                        "DISPATCH" -> R.drawable.driver
+                        "ENROUTE" -> R.drawable.cars
+                        else -> R.drawable.cars
+                    }
+
+                    val imageEndRes = when (rideStatus) {
+                        "RECEPTION" -> R.drawable.cars
+                        "DISPATCH" -> R.drawable.location
+                        "ENROUTE" -> R.drawable.location
+                        else -> R.drawable.location
+                    }
+
+                    val prog = if (rideStatus == "RECEPTION") {
+                        0
+                    } else {
+                        ((1 - mDiff.toDouble() / maxMinutesForThisStatus) * 100).toInt()
                     }
 
                     val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
@@ -184,11 +211,14 @@ class ForegroundService : Service() {
                     notificationLayout.setProgressBar(R.id.determinateBar, 100, prog, false)
                     notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, prog, false)
 
+                    notificationLayoutLarge.setImageViewResource(R.id.imageView, imageRes)
+                    notificationLayoutLarge.setImageViewResource(R.id.imageViewEnd, imageEndRes)
+
                     val displayMetrics = Resources.getSystem().displayMetrics
                     val screenWidth = displayMetrics.widthPixels 
                     val screenWidthDp = screenWidth / displayMetrics.density
                     Log.d("ForegroundService", "screenWidth: $screenWidthDp")
-                    val convertWidth = screenWidthDp - 104 - 16
+                    val convertWidth = screenWidthDp - 104 - 16 - 36
                     val calculateMargin = (convertWidth * prog) / 100
 
                     notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
@@ -205,7 +235,7 @@ class ForegroundService : Service() {
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                     
-                    if (progress == 100) {
+                    if (progress > 95) {
                         Log.d("ForegroundService", "Progress reached 100, stopping foreground service.")
                         stopSelf() // Call the method defined in the module
                         notificationManager.cancel(1)
@@ -241,7 +271,8 @@ class ForegroundService : Service() {
                         "endMemo" to result.getString("endMemo"),
                         "rideId" to result.getInt("rideId"),
                         "rideStatus" to result.getString("rideStatus"),
-                        "displayTime" to result.getString("displayTime")
+                        "displayTime" to result.getString("displayTime"),
+                        "maxMinutesForThisStatus" to result.getInt("maxMinutesForThisStatus")
                     )
                 } else {
                     Log.e("ForegroundService", "API response is missing 'result' field")

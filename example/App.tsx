@@ -114,7 +114,7 @@ export default function App() {
         <View>
           <TouchableOpacity
             onPress={() => {
-              Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 80);
+              Foreground.startForegroundService("https://pick-api.xyz/ride/info/test/widget?uid=9", "hi", "ha", 95);
               // SplashScreen.showSplash();
               // setTimeout(() => {
               //   // SplashScreen.hideSplash();

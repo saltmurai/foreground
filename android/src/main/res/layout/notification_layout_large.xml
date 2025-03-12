@@ -2,42 +2,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="horizontal"
+    android:gravity="bottom">
 
-    <TextView
-        android:id="@+id/notification_title_large"
-        style="@style/TextAppearance.Compat.Notification.Title"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="귀하의 차량이 곧 도착합니다!" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/notification_body_large"
-        style="@style/TextAppearance.Compat.Notification.Line2"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp"
-        android:text="초기화 중..." />
+        <TextView
+            android:id="@+id/notification_title_large"
+            style="@style/TextAppearance.Compat.Notification.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="귀하의 차량이 곧 도착합니다!" />
+
+        <TextView
+            android:id="@+id/notification_body_large"
+            style="@style/TextAppearance.Compat.Notification.Line2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="초기화 중..." />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/cars" />
+
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/determinateBarLarge"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:progress="0"
+            android:max="100"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:progressBackgroundTint="#969696"
+            android:progressTint="#076AEB"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageViewEnd"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/cars" />
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/location"
+        android:layout_gravity="bottom" />
 
-    <ProgressBar
-      android:id="@+id/determinateBarLarge"
-      style="@android:style/Widget.ProgressBar.Horizontal"
-      android:progress="0"
-      android:max="100"
-      android:layout_width="match_parent"
-      android:layout_height="8dp"
-      android:progressBackgroundTint="#969696"
-      android:progressTint="#076AEB"
-      android:layout_marginTop="8dp"
-      android:layout_marginBottom="8dp" />
 </LinearLayout>
