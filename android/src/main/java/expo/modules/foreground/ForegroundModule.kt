@@ -155,7 +155,7 @@ class ForegroundService : Service() {
                     val rideId = updateData["rideId"] as? Int ?: 0
                     val rideStatus = updateData["rideStatus"] as? String ?: "UNKNOWN"
                     val displayTime = updateData["displayTime"] as? String ?: "UNKNOWN" //17:40
-                    val maxMinutesForThisStatus = updateData["maxMinutesForThisStatus"] as? Int ?: 0
+                    val progressPercentage = updateData["progressPercentage"] as? Double ?: 0
 
                     Log.d("ForegroundService", "Start: $startMemo, End: $endMemo, Ride ID: $rideId, Status: $rideStatus, displayTime: $displayTime")
 
@@ -169,15 +169,6 @@ class ForegroundService : Service() {
                     val subTextTitle = when (rideStatus) {
                        "RECEPTION", "DISPATCH", "ENROUTE" -> "출발: $startMemo"
                         else -> "초기화 중..."
-                    }
-                    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                    val now = LocalTime.now(ZoneId.of("Asia/Seoul"))
-                    val targetTime = LocalTime.parse(displayTime, formatter)
-                    val mDiff = try {
-                        val minutesDiff = Duration.between(now, targetTime).toMinutes().toInt()
-                        minutesDiff.coerceAtLeast(0)
-                    } catch (e: Exception) {
-                        0
                     }
 
                     val imageRes = when (rideStatus) {
@@ -194,8 +185,6 @@ class ForegroundService : Service() {
                         else -> R.drawable.location
                     }
 
-                    val prog = ((1 - mDiff.toDouble() / maxMinutesForThisStatus) * 100).toInt();
-
                     val notificationLayout = RemoteViews(packageName, R.layout.notification_layout)
                     val notificationLayoutLarge = RemoteViews(packageName, R.layout.notification_layout_large)
 
@@ -204,8 +193,8 @@ class ForegroundService : Service() {
 
                     notificationLayoutLarge.setTextViewText(R.id.notification_body_large, subTextTitle)
 
-                    notificationLayout.setProgressBar(R.id.determinateBar, 100, prog, false)
-                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, prog, false)
+                    notificationLayout.setProgressBar(R.id.determinateBar, 100, progressPercentage, false)
+                    notificationLayoutLarge.setProgressBar(R.id.determinateBarLarge, 100, progressPercentage, false)
 
                     notificationLayoutLarge.setImageViewResource(R.id.imageView, imageRes)
                     notificationLayoutLarge.setImageViewResource(R.id.imageViewEnd, imageEndRes)
@@ -218,7 +207,7 @@ class ForegroundService : Service() {
                     val calculateMargin = if (rideStatus == "RECEPTION") {
                         0
                     } else {
-                        (convertWidth * prog) / 100
+                        (convertWidth * progressPercentage) / 100
                     }
 
                     notificationLayoutLarge.setViewLayoutMargin(R.id.imageView, 0x00000000, calculateMargin.toFloat(), TypedValue.COMPLEX_UNIT_DIP)
@@ -272,7 +261,7 @@ class ForegroundService : Service() {
                         "rideId" to result.getInt("rideId"),
                         "rideStatus" to result.getString("rideStatus"),
                         "displayTime" to result.getString("displayTime"),
-                        "maxMinutesForThisStatus" to result.getInt("maxMinutesForThisStatus")
+                        "progressPercentage" to result.getInt("progressPercentage")
                     )
                 } else {
                     Log.e("ForegroundService", "API response is missing 'result' field")
