@@ -1,6 +1,6 @@
 {
   "name": "foreground-ss",
-  "version": "0.1.45",
+  "version": "0.1.46",
   "description": "My new module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
