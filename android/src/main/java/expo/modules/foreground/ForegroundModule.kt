@@ -40,10 +40,10 @@ class ForegroundModule : Module() {
         // The module will be accessible from `requireNativeModule('Foreground')` in JavaScript.
         Name("Foreground")
 
-
         Function("startForegroundService") { endpoint: String, title: String, subtext: String, progress: Int ->
             val context = appContext.reactContext
             if (context != null) {
+                ForegroundService.stopService(context)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     ForegroundService.startService(context, endpoint, title, subtext, progress)
                 } else {
