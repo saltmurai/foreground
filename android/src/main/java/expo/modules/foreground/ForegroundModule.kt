@@ -224,7 +224,7 @@ class ForegroundService : Service() {
 
                     val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                     
-                    if (progress > 95) {
+                    if (rideStatus == "UNKNOWN") {
                         Log.d("ForegroundService", "Progress reached 100, stopping foreground service.")
                         stopSelf() // Call the method defined in the module
                         notificationManager.cancel(1)
