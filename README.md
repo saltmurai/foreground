@@ -124,6 +124,8 @@ module.exports = {
 }
 ```
 
+3. Add folder example/SampleWidgetExtension to root of the exp project
+
 # Usage
 In code to start a foreground service the app need
 - Allow Post Notification permission
