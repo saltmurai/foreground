@@ -1,5 +1,5 @@
-import ExpoModulesCore
 import ActivityKit
+import ExpoModulesCore
 
 internal class MissingCurrentWindowSceneException: Exception {
     override var reason: String {
@@ -7,46 +7,62 @@ internal class MissingCurrentWindowSceneException: Exception {
     }
 }
 
-private func fetchDataAndUpdateActivity(endpoint: String) async -> Void {
+private func fetchDataAndUpdateActivity(endpoint: String) async {
     if #available(iOS 16.2, *) {
         let rideInfo = await fetchProgressFromAPI(endpoint: endpoint)
         print("Ride Info:", rideInfo)
         NSLog("Message: %@", String(describing: rideInfo.rideStatus))
 
         if rideInfo.rideStatus == "UNKNOWN" {
-           let contentState = SportsLiveActivityAttributes.ContentState(title: "Done", subTitle: "Done sub", progress: 100)
-           let finalContent = ActivityContent(state: contentState, staleDate: nil)
-           Task {
+            let contentState = SportsLiveActivityAttributes.ContentState(
+                title: "Done",
+                subTitle: "Done sub",
+                progress: 100,
+                margin: 95,
+                iconProgress: "Cars",
+                iconEnd: "Location"
+            )
+            let finalContent = ActivityContent(state: contentState, staleDate: nil)
+            Task {
                 for activity in Activity<SportsLiveActivityAttributes>.activities {
                     await activity.end(finalContent, dismissalPolicy: .immediate)
                 }
             }
         }
 
-        let textTitle: String
-        let subTextTitle: String
-        let prog: Int
-
-        switch rideInfo.rideStatus {
+        let (
+            textTitle,
+            subTextTitle,
+            prog,
+            margin,
+            iconProgress,
+            iconEnd
+        ) =
+            switch rideInfo.rideStatus {
             case "RECEPTION":
-                textTitle = "Text for reception"
-                subTextTitle = "subText for reception"
-                prog = 20
+                (
+                    rideInfo.displayTime + "까지 기사가 배차될 예정입니다.", "출발: " + rideInfo.startMemo,
+                    Int(rideInfo.progressPercentage), 3, "Counselor", "Cars"
+                )
             case "DISPATCH":
-                textTitle = "Text for dispatch"
-                subTextTitle = "subText for dispatch"
-                prog = 50
+                (
+                    rideInfo.displayTime + "까지 기사가 도착할 예정입니다.", "출발: " + rideInfo.startMemo,
+                    Int(rideInfo.progressPercentage), Int(rideInfo.progressPercentage), "Driver",
+                    "Location"
+                )
             case "ENROUTE":
-                textTitle = "Text for enroute"
-                subTextTitle = "subText for enroute"
-                prog = 80
+                (
+                    "안전하게 목적지까지 운행중입니다.", "출발: " + rideInfo.startMemo,
+                    Int(rideInfo.progressPercentage),
+                    Int(rideInfo.progressPercentage), "Cars", "Location"
+                )
             default:
-                textTitle = "귀하의 차량이 곧 도착합니다!"
-                subTextTitle = "초기화 중..."
-                prog = 10
-        }
+                ("귀하의 차량이 곧 도착합니다!", "초기화 중...", 10, 3, "Counselor", "Cars")
+            }
 
-        let contentState = SportsLiveActivityAttributes.ContentState(title: textTitle, subTitle: subTextTitle, progress: prog)
+        let contentState = SportsLiveActivityAttributes.ContentState(
+            title: textTitle, subTitle: subTextTitle, progress: prog, margin: margin,
+            iconProgress: iconProgress, iconEnd: iconEnd)
         let updatedContent = ActivityContent(state: contentState, staleDate: nil)
         Task {
             for activity in Activity<SportsLiveActivityAttributes>.activities {
@@ -61,11 +77,11 @@ private func fetchProgressFromAPI(endpoint: String) async -> RideResult {
         print("Invalid URL:", endpoint)
         return RideResult.defaultValue()
     }
-    
+
     do {
         let (data, _) = try await URLSession.shared.data(from: url)
         let decodedResponse = try JSONDecoder().decode(RideResponse.self, from: data)
-        
+
         guard let result = decodedResponse.result else {
             print("API response missing 'result'")
             return RideResult.defaultValue()
@@ -79,19 +95,20 @@ private func fetchProgressFromAPI(endpoint: String) async -> RideResult {
 }
 
 public class ForegroundModule: Module {
-    private var timer: Timer? 
+    private var timer: Timer?
 
     public func definition() -> ModuleDefinition {
         Name("Foreground")
 
-        Function("startForegroundService") { (endpoint: String, title: String, subtext: String, progress: Int) -> String in
+        Function("startForegroundService") {
+            (endpoint: String, title: String, subtext: String, progress: Int) -> String in
             return "start"
         }
 
         Function("stopForegroundService") { () -> String in
             return "stop"
         }
-        
+
         Function("areActivitiesEnabled") { () -> Bool in
             if #available(iOS 16.2, *) {
                 return ActivityAuthorizationInfo().areActivitiesEnabled
@@ -99,19 +116,33 @@ public class ForegroundModule: Module {
                 return false
             }
         }
-        
-        Function("startActivity") { (title: String, subTitle: String, progress: Int, endpoint: String) -> Void in
+
+        Function("startActivity") {
+            (endpoint: String) -> Void in
             if #available(iOS 16.2, *) {
                 let attributes = SportsLiveActivityAttributes()
-                let contentState = SportsLiveActivityAttributes.ContentState(title: title, subTitle: subTitle, progress: progress)
-                
-                let activityContent = ActivityContent(state: contentState, staleDate: Calendar.current.date(byAdding: .minute, value: 30, to: Date())!)
-                
+                let contentState = SportsLiveActivityAttributes.ContentState(
+                    title: "귀하의 차량이 곧 도착합니다!", subTitle: "초기화 중...", progress: 10, margin: 3,
+                    iconProgress: "Counselor", iconEnd: "Cars")
+
+                let activityContent = ActivityContent(
+                    state: contentState,
+                    staleDate: Calendar.current.date(byAdding: .minute, value: 30, to: Date())!)
+
+                let finalContent = ActivityContent(state: contentState, staleDate: nil)
+
+                Task {
+                    for activity in Activity<SportsLiveActivityAttributes>.activities {
+                        await activity.end(finalContent, dismissalPolicy: .immediate)
+                    }
+                }
+
                 do {
-                    let activity = try Activity.request(attributes: attributes, content: activityContent)
+                    let activity = try Activity.request(
+                        attributes: attributes, content: activityContent)
 
                     timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                       Task {
+                        Task {
                             await fetchDataAndUpdateActivity(endpoint: endpoint)
                         }
                     }
@@ -121,25 +152,35 @@ public class ForegroundModule: Module {
             }
         }
 
-        Function("updateActivity") { (title: String, subTitle: String, progress: Int) -> Void in
+        Function("updateActivity") {
+            (
+                title: String, subTitle: String, progress: Int, margin: Int, iconProgress: String,
+                iconEnd: String
+            ) -> Void in
             if #available(iOS 16.2, *) {
-                let contentState = SportsLiveActivityAttributes.ContentState(title: title, subTitle: subTitle, progress: progress)
-                let alertConfiguration = AlertConfiguration(title: "Ride update", body: "This is the alert text", sound: .default)
+                let contentState = SportsLiveActivityAttributes.ContentState(
+                    title: title, subTitle: subTitle, progress: progress, margin: margin,
+                    iconProgress: iconProgress, iconEnd: iconEnd)
+                let alertConfiguration = AlertConfiguration(
+                    title: "Ride update", body: "This is the alert text", sound: .default)
                 let updatedContent = ActivityContent(state: contentState, staleDate: nil)
-                
+
                 Task {
                     for activity in Activity<SportsLiveActivityAttributes>.activities {
-                        await activity.update(updatedContent, alertConfiguration: alertConfiguration)
+                        await activity.update(
+                            updatedContent, alertConfiguration: alertConfiguration)
                     }
                 }
             }
         }
-        
-        Function("endActivity") { (title: String, subTitle: String, progress: Int) -> Void in
+
+        Function("endActivity") { () -> Void in
             if #available(iOS 16.2, *) {
-                let contentState = SportsLiveActivityAttributes.ContentState(title: title, subTitle: subTitle, progress: progress)
+                let contentState = SportsLiveActivityAttributes.ContentState(
+                    title: "여행이 완료되었습니다!", subTitle: "이용해 주셔서 감사합니다.", progress: 100, margin: 95,
+                    iconProgress: "Cars", iconEnd: "Location")
                 let finalContent = ActivityContent(state: contentState, staleDate: nil)
-                
+
                 Task {
                     for activity in Activity<SportsLiveActivityAttributes>.activities {
                         await activity.end(finalContent, dismissalPolicy: .immediate)
@@ -160,13 +201,17 @@ struct RideResult: Decodable {
     let endMemo: String
     let rideId: Int
     let rideStatus: String
-    
+    let displayTime: String
+    let progressPercentage: Double
+
     static func defaultValue() -> RideResult {
         return RideResult(
             startMemo: "UNKNOWN",
             endMemo: "UNKNOWN",
             rideId: 0,
-            rideStatus: "UNKNOWN hihi"
+            rideStatus: "UNKNOWN",
+            displayTime: "UNKNOWN",
+            progressPercentage: 0.0
         )
     }
 }

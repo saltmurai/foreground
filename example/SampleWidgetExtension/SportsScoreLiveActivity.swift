@@ -1,6 +1,6 @@
 import ActivityKit
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 struct SportsLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -32,28 +32,41 @@ struct SportsLiveActivity: Widget {
                 }
                 .padding(.bottom, 10)
 
-                VStack {
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            ProgressView(value: CGFloat(context.state.progress), total: 100.0)
-                                .progressViewStyle(LinearProgressViewStyle())
-                                .frame(height: 8)
-                                .background(RoundedRectangle(cornerRadius: 4).fill(Color.gray.opacity(0.3)))
+                HStack {
+                    VStack {
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                ProgressView(value: CGFloat(context.state.progress), total: 100.0)
+                                    .progressViewStyle(LinearProgressViewStyle())
+                                    .frame(height: 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 4).fill(
+                                            Color.gray.opacity(0.3)))
 
-                            Image("Cars")
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                                .foregroundColor(.primary)
-                                .offset(x: (CGFloat(context.state.progress) / 100.0) * geometry.size.width - 16, y: -24)
-                                .accessibilityIgnoresInvertColors(true)
+                                Image(context.state.iconProgress)
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .foregroundColor(.primary)
+                                    .offset(
+                                        x: (CGFloat(context.state.margin) / 100.0)
+                                            * geometry.size.width - 16, y: -24
+                                    )
+                                    .accessibilityIgnoresInvertColors(true)
+                            }
                         }
-                    }
-                    .padding(.top, 18)
-                    .padding(.bottom, 10)
-                    .frame(height: 32)
-                }
-                .padding(.bottom, 10)
+                        .padding(.top, 18)
+                        .padding(.bottom, 10)
+                        .frame(height: 32)
+                    }.padding(.bottom, 10)
 
+                    
+                    Image(context.state.iconEnd)
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .foregroundColor(.primary)
+                        .accessibilityIgnoresInvertColors(true)
+                    
+                }.padding(.bottom, 10)
                 Spacer()
             }
             .padding(.top, 15)
@@ -88,7 +101,14 @@ struct SportsLiveActivity: Widget {
 struct SportsLiveActivityPreviews: PreviewProvider {
     static let future = Calendar.current.date(byAdding: .minute, value: (15), to: Date())!
     static let attributes = SportsLiveActivityAttributes()
-    static let contentState = SportsLiveActivityAttributes.ContentState(title: "귀하의 차량이 곧 도착합니다!", subTitle: "초기화 중...", progress: 0)
+    static let contentState = SportsLiveActivityAttributes.ContentState(
+        title: "귀하의 차량이 곧 도착합니다!", 
+        subTitle: "초기화 중...", 
+        progress: 0,
+        margin: 0,
+        iconProgress: "Cars",
+        iconEnd: "Location"
+    )
 
     static var previews: some View {
         attributes
